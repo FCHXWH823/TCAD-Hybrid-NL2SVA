@@ -1,0 +1,91 @@
+\section{Introduction}
+\label{sec:introduction}
+% Hardware verification is a critical phase in the chip design cycle, often taking up to $70\%$ of the development time~\cite{Farahmandi19}.
+\textit{SystemVerilog Assertion}s (\textit{SVA}s) are essential tools in hardware verification, formally specifying expected design behaviors, namely the \textit{design properties}, and serving as embedded checkers that continuously validate the implementation against its specification~\cite{Witharana22,SystemVerilog18}.
+% \textit{SystemVerilog Assertion}s (\textit{SVA}s) are essential tools in hardware verification, formally specifying expected design behaviors, i.e., \textit{design properties}, and serving as embedded checkers that continuously validate the implementation against its specification~\cite{Witharana22,SystemVerilog18}.
+% For over a decade, \textit{Assertion-Based Verification} (\textit{ABV}) has become the de facto standard for verifying the functional and security properties of hardware designs~\cite{Witharana22}.
+% Within this process, \textit{SystemVerilog Assertions} (\textit{SVAs}) have become essential tools for ensuring correctness in complex designs.
+% SVAs are used to formally specify the expected behaviors, i.e., the \textit{design propertie}s, and act as embedded checkers that continuously validate the design against its specification.
+% These assertions are violated whenever the actual design behaviors deviate from the expected ones specified in the assertions, and errors will be reported during verification~\cite{SystemVerilog18}.
+However, writing SVAs manually is difficult, which consists of two sub-tasks~\cite{Vasudevan10,Witharana23}.
+The first task is to extract intended properties, described in natural language, from hardware designs and detailed specification documents. 
+% However, as designs grow larger and more complex, it becomes increasingly challenging to capture all important properties needed to cover every necessary checking case.
+Once these are identified, the second task is to implement these natural language properties as SVAs, i.e., the NL2SVA task. 
+% This task is also challenging because it demands deep domain expertise in both the hardware design’s functionality and the syntax of SVAs.
+% These challenges often lead to incomplete verification coverage, where key behaviors may be overlooked, and increase the likelihood of human errors in manually generated SVAs, resulting in undetected bugs. 
+% This underscores the need for an automated approach to SVA generation~\cite{Yan25}.
+Recent advances in \textit{Natural Language Processing} (\textit{NLP}) or \textit{Large Language Models} (\textit{LLMs}), such as \textit{GPT}-$4$\textit{o} and \textit{DeepSeek}, have shown promising potential in automating both sub-tasks~\cite{Radu24,Mali24}.
+
+For the first sub-task of property extraction, several recent works have explored different techniques~\cite{Yan25,parthasarathy2021spectosva,Meng24}.
+\textit{AssertLLM}~\cite{Yan25} proposes a multi-LLM framework that processes the complete specification document to extract design properties for each architectural signal.
+\textit{SpecToSVA}~\cite{parthasarathy2021spectosva} trains a machine-learning-based sentence classifier to automatically detect property-relevant sentences from specification documents, reducing manual effort in identifying verification properties.
+\textit{NSPG}~\cite{Meng24} introduces a fine-tuned domain-specific LLM to  mine hardware security properties from specification documents.
+% Recent advances in \textit{Natural Language Processing} (\textit{NLP}) or \textit{Large Language Models} (\textit{LLMs}), such as \textit{GPT}-$4$\textit{o} and \textit{DeepSeek}, have shown promising potential in automating both sub-tasks~\cite{Radu24}. 
+% For the first sub-task, approaches mainly utilize LLM pipelines to extract relevant sentences from specification documents~\cite{Yan25}.
+% In this paper, we focus specifically on the second sub-task.
+
+% Several recent works have explored automating both sub-tasks. Techniques such as natural language processing models and specification mining tools have been proposed to assist in property extraction [7], [8]. Separately, approaches using large language models (LLMs) have been introduced to generate SVAs from extracted property descriptions [9], [10].
+
+Recent works have also explored automating the NL2SVA sub-task using both \textit{rule-based} and \textit{LLM-based} methods. Traditional rule-based methods, such as \textit{GLaST}~\cite{Harris16} and \textit{Ease}~\cite{Krishnamurthy19}, rely on manually crafted grammars, rules, or templates, but struggle to generalize across diverse specifications and require substantial manual effort. 
+More recently, LLM-based approaches like \textit{nl2spec}~\cite{Cosler23} introduce interactive prompting frameworks where engineers refine LLM-suggested subformulas to improve accuracy, but it depends heavily on human intervention and careful prompt design. 
+AssertLLM also proposes a multi-LLM pipeline and incorporates a \textit{retrieval-augmented generation} (\textit{RAG}) component to assist NL2SVA; 
+however, it just uses the generic retrieval method, and focuses only on syntax correctness and \textit{Formal Property Verification} (\textit{FPV}) pass of generated SVAs, without evaluating functionality match of generated SVAs to the natural language property description.
+In~\cite{wu2025}, the authors first convert the natural language description into an intermediate formal representation, and then decompose that representation into fragments, translates each fragment into its corresponding SVA, and finally combines them into a complete assertion.
+\cite{Shahidzadeh24} uses pairs of SVAs and natural language explanations to finetune \textit{GPT-3.5-Turbo}.
+While demonstrating promise, these methods have struggled to achieve high accuracy, often failing to translate a desired natural language specification into the SVA. We argue that this is primarily because existing methods have not properly customized their RAG and/or finetuning pipelines to the task at hand.
+
+%Moreover, a critical component for evaluating LLM-aided SVA generation is the availability of comprehensive evaluation datasets. Prior works such as \textit{AssertionBench}~\cite{Vaishnavi25}, \textit{AssertLLM}~\cite{Yan25}, and \textit{FVEval}~\cite{Minwoo24} have provided open-source datasets for benchmarking assertion generation. However, AssertionBench and AssertLLM lack detailed contextual information, such as natural language explanations of the SVAs. This missing information is essential for rigorously evaluating the functionality match between the generated SVAs and their expected natural language property descriptions.
+%FVEval introduces a more comprehensive dataset, containing $13$ hardware designs, $80$ SVAs with corresponding human-written property explanations.
+% Moreover, a critical component for evaluating LLM-aided SVA generation is the availability of comprehensive datasets. 
+% % Existing datasets in this domain, however, remain limited in both scale and annotation richness. 
+% Prior works such as \textit{AssertionBench}~\cite{Vaishnavi25}, \textit{AssertLLM}~\cite{Yan25}, and \textit{FVEval}~\cite{Minwoo24} have provided open-source datasets for benchmarking assertion generation. Nonetheless, AssertionBench and AssertLLM lack detailed contextual information, such as natural language explanations of the SVAs and fine-grained signal annotations, which are essential for understanding and faithfully reconstructing the intended design behaviors. 
+% FVEval introduces a more comprehensive dataset, containing hardware designs, manually inserted SVAs, and human-written property explanations.
+% Recent advances in \textit{Large Language Models} (\textit{LLMs}), such as $GPT$-$3.5$ and $GPT$-$4$, have enabled initial approaches to generate SVAs from design descriptions and specification documents~\cite{Radu24}. 
+% However, applying a generic LLM to SVA generation is not straightforward. 
+% General-purpose LLMs lack domain-specific training in hardware description and verification languages, which means they often do not fully understand the semantics of signals and the SVA syntax.
+% Without specialized knowledge, an LLM might produce an assertion that is syntactically legal but semantically incorrect for the given design, such that requiring costly human correction or fine-tuning~\cite{Anand25}.
+% Another challenge is the limited context window of LLMs. 
+% Hardware design specifications can span hundreds of pages and include many details. 
+% An LLM could only produce correct assertions when key design details (such as signal names and their relationships) were described with precision in the prompt~\cite{Mohammad24}.
+
+% To address these limitations and further improve the quality of LLM-aided SVA generation, different advanced techniques have been proposed, such as prompt engineering~\cite{Cosler23}, multi-agents~\cite{Yan25}, and \textit{Retrieval-Augmented Generation} (\textit{RAG})~\cite{Yan25}.
+% By integrating a retrieval component that queries external knowledge sources, such as Verilog textbooks and tutorials, RAG can provide the LLM with relevant context to aid SVA generation.
+% However, there is no related works, which are dedicated to applying RAG to LLM-aided SVA generation.
+
+In this paper, we propose a \textit{customized RAG framework} and a \textit{synthetic fine-tuning dataset} to improve LLM-based NL2SVA. 
+The main contributions are as follows:
+\begin{itemize}
+    \item [(1)] We propose the first systematic framework to customize traditional RAG for NL2SVA.
+    \item [(2)] We introduce a \textit{dynamic splitting technique} for database construction to preserve semantic context.
+    \item [(3)] We develop \textit{HybridRetrieval} to improve retrieval relevance by combining global semantic and keyword-guided retrievals.
+    \item [(4)] We propose an \textit{SVA operator-based rechecking} to refine and correct LLM-generated assertions.
+    \item [(5)] We provide a synthetic fine-tuning dataset of \textit{prompt-guided explanation}s for the layer-by-layer construction of SVAs.
+    \item [(6)] We construct the largest evaluation dataset for NL2SVA.
+\end{itemize}
+% A critical component in evaluating LLM-aided SVA generation is the availability of comprehensive evaluation datasets. 
+% Existing datasets in the assertion generation domain have been limited in scale and annotation richness. 
+% Prior works such as AssertEval~\cite{Vaishnavi25}, AssertLLM~\cite{Yan25}, and FVEval~\cite{Minwoo24} have provided several different evaluation datasets for LLM-aided SVA generation. 
+% However, AssertEval and AssertLLM lack detailed contextual information of SVAs, such as natural language explanations of SVAs and signal-specific annotations, which is essential for understanding the intended design behavior.
+% FVEval provides a more comprehensive evaluation dataset, which contains hardware designs, inserted human-written SVAs, and corresponding human-written natural language explanations.
+% However, it only contains $13$ simple designs and $80$ SVAs.
+
+% In this paper, we propose a comprehensive evaluation dataset for evaluation the assertion generation ability of LLMs and propose two RAG frameworks for improving the LLM-aided assertion generation. 
+% The main contributions are:
+% \begin{enumerate}
+%     \item [(1)] We introduce an evaluation dataset comprising $40$ hardware designs and $229$ SVAs with detailed annotations (explanations and used signal information), making it the largest collection of its kind as we know.
+%     \item [(2)] The richly annotated dataset enables comprehensive evaluation of LLM performance across various downstream tasks.
+%     \item [(3)] We propose an automatic evaluation flow based on the \textit{Formal Property Verification} (\textit{FPV}) tool.
+%     \item [(4)]  We build the RAG database from Verilog textbooks to provide relevant SVA context for assertion generation.
+%     \item [(5)] We introduce a novel dynamic chunk splitting technique that further enhances the basic RAG framework for assertion generation. 
+% \end{enumerate}
+
+%In the remainder of this paper, Section~\ref{sec:Preliminary} introduces some preliminaries about SVAs and RAG. Section~\ref{subsec:Evaluation-Dataset} introduces the proposed evaluation dataset for LLM-aided SVA generation. 
+%Section~\ref{subsec:RAG-aided-Assertion-Generation} introduces the proposed two RAG frameworks using different chunk splitting techniques for LLM-aided SVA generation.
+%Then, the experiment results are reported in Section~\ref{sec:exp}. 
+
+In the remainder of this paper, Section~\ref{sec:Preliminary} introduces some preliminaries about SVAs and RAG. 
+Section~\ref{subsec:RAGSVAG} presents the proposed customized RAG framework, including three key components: the dynamic splitting technique for database construction, the HybridRetrieval method for improving retrieval process, and the SVA operator-based rechecking flow for SVA refinement. 
+Section~\ref{subsec:synthetic-finetuning-dataset} introduces our proposed synthetic fine-tuning dataset.
+Section~\ref{subsec:Evaluation-Dataset} introduces our evaluation dataset. 
+Then, the experimental results are reported in Section~\ref{sec:exp}. 
+Finally, Section~\ref{sec:con} concludes the paper.

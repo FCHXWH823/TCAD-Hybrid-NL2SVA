@@ -1,0 +1,136 @@
+    \documentclass[conference,9pt]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+%Template version as of 6/27/2024
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{verbatim}
+\usepackage{framed}
+\usepackage{listings}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{float}
+% \usepackage{appendix}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}
+
+% reduce space above and below floats (tables & figures)
+\setlength{\floatsep}{3pt}     % between floats
+% \setlength{\textfloatsep}{12pt plus 3pt minus 3pt} % between floats and text (top/bottom)
+% \setlength{\intextsep}{8pt plus 1pt minus 1pt}    % between in-text floats and text
+\setlength{\intextsep}{3pt} % Adjust space above and below in-text floats
+\setlength{\textfloatsep}{3pt} % Adjust space between floats and text
+
+\begin{document}
+
+\title{
+% NL2SVA: LLM-based SystemVerilog Assertion Generation from Natural Language
+Hybrid-NL2SVA: Integrating RAG and Finetuning for LLM-based NL2SVA
+}
+
+\author{%
+{\normalsize Weihua Xiao, Derek Ekberg, Siddharth Garg, Ramesh Karri}\\
+{\normalsize NYU Tandon School of Engineering, Brooklyn, NY, USA}\\
+{\normalsize Emails: \{wx2356, dhe9940\}@nyu.edu, siddharth.j.garg@gmail.com, rkarri@nyu.edu}
+}
+
+% \author{\IEEEauthorblockN{1\textsuperscript{st} Given Name Surname}
+% \IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+% \textit{name of organization (of Aff.)}\\
+% City, Country \\
+% email address or ORCID}
+% \and
+% \IEEEauthorblockN{2\textsuperscript{nd} Given Name Surname}
+% \IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+% \textit{name of organization (of Aff.)}\\
+% City, Country \\
+% email address or ORCID}
+% \and
+% \IEEEauthorblockN{3\textsuperscript{rd} Given Name Surname}
+% \IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+% \textit{name of organization (of Aff.)}\\
+% City, Country \\
+% email address or ORCID}
+% \and
+% \IEEEauthorblockN{4\textsuperscript{th} Given Name Surname}
+% \IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+% \textit{name of organization (of Aff.)}\\
+% City, Country \\
+% email address or ORCID}
+% \and
+% \IEEEauthorblockN{5\textsuperscript{th} Given Name Surname}
+% \IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+% \textit{name of organization (of Aff.)}\\
+% City, Country \\
+% email address or ORCID}
+% \and
+% \IEEEauthorblockN{6\textsuperscript{th} Given Name Surname}
+% \IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+% \textit{name of organization (of Aff.)}\\
+% City, Country \\
+% email address or ORCID}
+% }
+\IEEEoverridecommandlockouts
+\IEEEpubid{\makebox[\columnwidth]{979-8-3315-3762-3/25/\$31.00~\copyright2025 IEEE \hfill} \hspace{\columnsep}\makebox[\columnwidth]{ }}
+
+\maketitle
+% \IEEEpubidadjcol
+
+\begin{abstract}
+\textit{SystemVerilog Assertion}s (\textit{SVA}s) are critical for verifying the correctness of hardware designs, but manually writing them from natural language property descriptions, i.e., \textit{NL2SVA}, remains a labor-intensive and error-prone task. 
+Recent advances in \textit{large language model}s (\textit{LLM}s) offer opportunities to automate this translation. 
+However, existing models still struggle with understanding domain-specific syntax and semantics. 
+To enhance LLM performance in NL2SVA, we propose a customized \textit{retrieval-augmented generation} (\textit{RAG}) framework and a synthetic fine-tuning dataset that together improve LLM's performance. 
+% propose a customized \textit{Retrieval-Augmented Generation} (\textit{RAG}) framework that systematically improves both the \textit{database construction} and \textit{retrieval process} of traditional RAG pipelines, and further refines the generated assertions. 
+% First, we introduce a \textit{dynamic splitting technique} to construct a context-preserving retrieval database by semantically segmenting SystemVerilog textbooks. 
+% Second, we develop \textit{HybridRetrieval}, a retrieval process that combines \textit{global semantic retrieval} with \textit{keyword-guided retrieval} to extract relevant SVA operator-specific contexts. 
+% Third, we propose an \textit{SVA operator-based rechecking flow} to validate and correct the SVA operator use in LLM-generated assertions. 
+Our RAG framework (i) constructs a context-preserving database via \textit{dynamic splitting technique}, (ii) combines global semantic retrieval with keyword-guided retrieval to extract SVA operator-related contexts via \textit{HybridRetrieval}, and (iii) validate and correct the use of SVA operators in LLM-generated SVAs via \textit{SVA operator-based rechecking}.
+To further improve lightweight models over NL2SVA, our fine-tuning dataset provides \textit{prompt-guided explanation}s that teach LLMs the layer-by-layer construction process of concurrent SVAs, enabling supervised fine-tuning that greatly improves syntax and functionality accuracy.
+To evaluate the performance of LLMs over NL2SVA, we construct the largest evaluation dataset for NL2SVA, comprising $40$ Verilog designs and $229$ formally verified SVAs with detailed annotations.
+% Experimental results show that  RAGSVAG framework can improve the number of generated functionality match SVAs by $58.42\%$ over \textit{GPT-4o mini}. 
+Experimental results show that our customized RAG framework increases the number of functionality matched SVAs by $58.42 \%$ over \textit{GPT-4o-mini}, while \textit{Qwen2.5-Coder-7B-Instruct} fine-tuned on our fine-tuning dataset and integrated with HybridRetrieval achieves a $59.05 \%$ over the base Qwen model.
+% RAGSVAG code and evaluation dataset are released at https://github.com/FCHXWH823/RAG-aided-Assertion-Generation.
+% To rigorously evaluate the effectiveness of our framework, we construct the largest evaluation dataset, to our knowledge, for natural language to SVA translation, consisting of $40$ Verilog designs and $229$ formally verified SVAs with detailed annotations.
+% To enhance LLM performance in SVA generation, we propose \textit{RAG-SVAGen}, a \textit{Retrieval-Augmented Framework} that improves both the database construction and retrieval process of the traditional RAG pipeline. 
+% First, we introduce a \textit{dynamic splitting technique} to construct a context-preserving retrieval database by semantically segmenting code snippets from SystemVerilog textbooks. 
+% Second, we develop \textit{HybridRetrieval}, a retrieval process that combines \textit{global semantic retrieval} with \textit{keyword-guided retrieval} to enhance the retrieval quality. 
+% To rigorously evaluate our framework, we construct the largest evaluation dataset to date for natural language to SVA translation, consisting of 40 Verilog designs and 229 formally verified SVAs with detailed annotations. Experimental results demonstrate that RAG-SVAGen significantly improves functionality match rates compared to strong LLM baselines, highlighting the effectiveness of retrieval-augmented techniques tailored for SVA synthesis.
+% To improve LLM performance in SVA generation, we propose \textit{RAG-SVAGen}, a \textit{Retrieval-Augmented Framework} that enhances LLMs by retrieving relevant domain-specific context.
+% At the core of RAG-SVAGen, we construct a retrieval database from SystemVerilog textbooks by proposing a \textit{dynamic splitting technique}, which can help reducing unnecessary or irrelevant content in the database. 
+% To further enhance retrieval quality, we develop \textit{HybridRAG}, which combines \textit{global semantic retrieval} with \textit{keyword-guided retrieval}. 
+% Additionally, we propose an \textit{SVA operator-based rechecking flow} to further refine LLM-generated assertions by verifying the correctness of operator usage.
+% To rigorously evaluate the effectiveness of our framework, we construct a comprehensive evaluation dataset, which is the largest one for natural language to SVA translation to our knowledge, consisting of $40$ Verilog designs and $229$ formally verified SVAs with detailed annotations. 
+% Experimental results show that our proposed RAG framework can improve the number of generated functionality match assertions by $29.1\%$ over the OpenAI CodeX model in the prompt assertion generation task.
+\end{abstract}
+
+\IEEEpubidadjcol
+\begin{IEEEkeywords}
+Large Language Model, SystemVerilog Assertion, Evaluation Dataset, Retrieval-Augmented Generation, Fine-tuning
+\end{IEEEkeywords}
+
+\input{Tex/Introduction}
+\input{Tex/Preliminary}
+\input{Tex/Methodology}
+\input{Tex/Experiments}
+\input{Tex/Conclusion}
+% \input{Tex/Acknowledgment}
+\bibliographystyle{IEEEtran}
+\bibliography{Reference}
+\onecolumn
+\newpage
+\appendix
+
+\input{Tex/Appendix}
+
+
+
+
+\end{document}
